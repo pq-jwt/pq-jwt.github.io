@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pq-jwt — Post-Quantum JWT for Node.js</title>
+<meta name="description" content="Drop-in successor to RS256/ES256. Built on NIST FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA). The JWT library for the post-quantum era.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #080b0f;
+    --bg2:      #0d1117;
+    --bg3:      #111820;
+    --border:   #1e2d3d;
+    --border2:  #243447;
+    --teal:     #00d4aa;
+    --teal2:    #00ffcc;
+    --blue:     #3b82f6;
+    --amber:    #f59e0b;
+    --red:      #ef4444;
+    --green:    #22c55e;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --muted2:   #94a3b8;
+    --mono:     'Space Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── Grid background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(8,11,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--teal);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--muted2); }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted2);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-cta {
+    background: var(--teal) !important;
+    color: var(--bg) !important;
+    padding: 0.4rem 1rem !important;
+    border-radius: 4px;
+    font-weight: 700 !important;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--teal);
+    border: 1px solid rgba(0,212,170,0.3);
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--teal);
+    position: relative;
+  }
+  .hero h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted2);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+    font-weight: 400;
+  }
+
+  .hero-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--teal2);
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.3s ease both;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .hero-install:hover { border-color: var(--teal); }
+  .hero-install .prompt { color: var(--muted); }
+  .copy-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: var(--mono);
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--teal); border-color: var(--teal); }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .btn-primary {
+    background: var(--teal);
+    color: var(--bg);
+    border: none;
+    padding: 0.7rem 1.75rem;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary:hover { background: var(--teal2); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted2);
+    border: 1px solid var(--border2);
+    padding: 0.7rem 1.75rem;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted2); }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .stat {
+    padding: 1.5rem 3rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--teal);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--mono);
+  }
+
+  /* ── Sections ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: var(--muted2);
+    font-size: 1rem;
+    max-width: 560px;
+    margin-bottom: 3rem;
+  }
+
+  /* ── Threat section ── */
+  .threat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+  .threat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .threat-card.broken {
+    border-color: rgba(239,68,68,0.3);
+  }
+  .threat-card.broken::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--red);
+  }
+  .threat-card.safe {
+    border-color: rgba(0,212,170,0.3);
+  }
+  .threat-card.safe::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--teal);
+  }
+  .card-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .label-broken { color: var(--red); }
+  .label-safe { color: var(--teal); }
+  .card-alg {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .card-desc {
+    font-size: 0.85rem;
+    color: var(--muted2);
+    line-height: 1.6;
+  }
+  .card-tag {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+  .tag-broken { background: rgba(239,68,68,0.1); color: var(--red); }
+  .tag-safe { background: rgba(0,212,170,0.1); color: var(--teal); }
+
+  /* ── Code section ── */
+  .code-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 2rem 0;
+  }
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+  }
+  .code-dots { display: flex; gap: 0.4rem; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .code-filename { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+  pre {
+    padding: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.8;
+    overflow-x: auto;
+  }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cmt { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .obj { color: var(--teal); }
+
+  /* ── Algorithm cards ── */
+  .algo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .algo-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .algo-card:hover { border-color: rgba(0,212,170,0.4); transform: translateY(-2px); }
+  .algo-card.featured { border-color: rgba(0,212,170,0.4); }
+  .algo-name {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .algo-badge {
+    font-size: 0.6rem;
+    background: rgba(0,212,170,0.15);
+    color: var(--teal);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+  }
+  .algo-standard {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .algo-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .algo-stat-item { }
+  .algo-stat-val {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 700;
+  }
+  .algo-stat-key {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--mono);
+  }
+
+  /* ── Performance table ── */
+  .perf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    margin-top: 2rem;
+  }
+  .perf-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border);
+  }
+  .perf-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted2);
+  }
+  .perf-table td:first-child { color: var(--text); font-weight: 700; }
+  .perf-table tr:last-child td { border-bottom: none; }
+  .perf-table tr.highlight td { background: rgba(0,212,170,0.04); }
+  .perf-table tr.broken-row td { opacity: 0.5; }
+  .good { color: var(--green) !important; }
+  .warn { color: var(--amber) !important; }
+  .bad  { color: var(--red) !important; }
+  .rec-badge {
+    font-size: 0.6rem;
+    background: rgba(0,212,170,0.15);
+    color: var(--teal);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+  }
+
+  /* ── Who needs this ── */
+  .use-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .use-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .use-card:hover { border-color: rgba(0,212,170,0.3); }
+  .use-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+  .use-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .use-desc { font-size: 0.85rem; color: var(--muted2); line-height: 1.6; }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    margin-top: 2.5rem;
+    padding-left: 2rem;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(var(--teal), var(--border), transparent);
+  }
+  .tl-item {
+    position: relative;
+    padding: 0 0 2rem 1.5rem;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border2);
+    border: 2px solid var(--border);
+  }
+  .tl-item.active::before {
+    background: var(--teal);
+    border-color: var(--teal);
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .tl-year {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--teal);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .tl-event { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .tl-desc { font-size: 0.82rem; color: var(--muted2); }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center;
+    padding: 8rem 2rem;
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(0,212,170,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .footer-brand { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
+  .footer-brand strong { color: var(--teal); }
+  .footer-links { display: flex; gap: 2rem; }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--teal); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .threat-grid, .algo-grid { grid-template-columns: 1fr; }
+    .use-grid { grid-template-columns: 1fr; }
+    .stat { padding: 1rem 1.5rem; }
+    nav .nav-links { display: none; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">pq-jwt<span>/core</span></div>
+  <div class="nav-links">
+    <a href="#why">Why</a>
+    <a href="#algorithms">Algorithms</a>
+    <a href="#code">Usage</a>
+    <a href="#performance">Performance</a>
+    <a href="https://github.com/pq-jwt/PQ-JWT" target="_blank">GitHub</a>
+    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank" class="nav-cta">npm install</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    NIST FIPS 204 &amp; 205 · Published August 2024
+  </div>
+
+  <h1>
+    JWT authentication<br>
+    for the <em>post-quantum</em> era
+  </h1>
+
+  <p class="hero-sub">
+    RS256 and ES256 are broken by Shor's algorithm on a quantum computer.
+    <strong style="color:var(--text)">@pq-jwt/core</strong> replaces them with
+    NIST-standardized ML-DSA and SLH-DSA. Same API. Drop-in replacement.
+  </p>
+
+  <div class="hero-install" onclick="copyInstall(this)">
+    <span class="prompt">$</span>
+    <span>npm install @pq-jwt/core</span>
+    <button class="copy-btn" id="copyBtn">copy</button>
+  </div>
+
+  <div class="hero-actions">
+    <a href="https://github.com/pq-jwt/PQ-JWT" target="_blank" class="btn-primary">
+      ★ Star on GitHub
+    </a>
+    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank" class="btn-ghost">
+      View on npm →
+    </a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-num">4</span>
+    <span class="stat-label">NIST Algorithms</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">v1.1.0</span>
+    <span class="stat-label">Latest version</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">61/61</span>
+    <span class="stat-label">Tests passing</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">2^96</span>
+    <span class="stat-label">Quantum security ops</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">MIT</span>
+    <span class="stat-label">License</span>
+  </div>
+</div>
+
+<!-- WHY -->
+<section id="why">
+  <div class="section-tag">// the problem</div>
+  <h2 class="section-title">Your JWTs will be<br>forged by quantum computers</h2>
+  <p class="section-sub">
+    RS256 relies on integer factorization. ES256 relies on elliptic curve discrete log.
+    Shor's algorithm (1994) solves both in polynomial time on a quantum computer.
+  </p>
+
+  <div class="threat-grid">
+    <div class="threat-card broken">
+      <div class="card-label label-broken">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        Broken by quantum
+      </div>
+      <div class="card-alg">RS256 / RSA</div>
+      <div class="card-desc">
+        Security basis: integer factorization (N = p × q).
+        Shor's algorithm factors N in O(log³N) quantum operations.
+        Private key recovery: polynomial time.
+      </div>
+      <span class="card-tag tag-broken">Shor's algorithm: APPLICABLE</span>
+    </div>
+
+    <div class="threat-card broken">
+      <div class="card-label label-broken">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        Broken by quantum
+      </div>
+      <div class="card-alg">ES256 / ECDSA</div>
+      <div class="card-desc">
+        Security basis: elliptic curve discrete logarithm.
+        Shor's algorithm solves ECDLP in polynomial time.
+        All EC curves (P-256, secp256k1) are affected.
+      </div>
+      <span class="card-tag tag-broken">Shor's algorithm: APPLICABLE</span>
+    </div>
+
+    <div class="threat-card safe">
+      <div class="card-label label-safe">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        Quantum resistant
+      </div>
+      <div class="card-alg">ML-DSA (FIPS 204)</div>
+      <div class="card-desc">
+        Security basis: Module-LWE lattice hardness.
+        Shor's algorithm: zero speedup (not a group-period problem).
+        Grover gives only sqrt speedup → 96-bit quantum security.
+      </div>
+      <span class="card-tag tag-safe">Shor's algorithm: NOT APPLICABLE</span>
+    </div>
+
+    <div class="threat-card safe">
+      <div class="card-label label-safe">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        Quantum resistant
+      </div>
+      <div class="card-alg">SLH-DSA (FIPS 205)</div>
+      <div class="card-desc">
+        Security basis: hash function hardness only.
+        No lattice assumptions — purely conservative choice.
+        7 years of NIST cryptanalysis. No known attack.
+      </div>
+      <span class="card-tag tag-safe">Shor's algorithm: NOT APPLICABLE</span>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section id="code" style="border-top:1px solid var(--border)">
+  <div class="section-tag">// same api you already know</div>
+  <h2 class="section-title">Drop-in replacement.<br>Zero relearning.</h2>
+  <p class="section-sub">
+    If you've used jsonwebtoken before, you already know how to use pq-jwt.
+    Same sign / verify / decode pattern. Typed errors. Full TypeScript.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="code-filename">auth.mjs</div>
+      <div></div>
+    </div>
+    <pre><span class="kw">import</span> { <span class="obj">generateKeyPair</span>, <span class="obj">sign</span>, <span class="obj">verify</span> } <span class="kw">from</span> <span class="str">'@pq-jwt/core'</span>;
+
+<span class="cmt">// Generate once — store in your secrets manager</span>
+<span class="kw">const</span> { <span class="obj">publicKey</span>, <span class="obj">secretKey</span> } = <span class="fn">generateKeyPair</span>(<span class="str">'ML-DSA-65'</span>);
+
+<span class="cmt">// Sign a token — identical to jsonwebtoken API</span>
+<span class="kw">const</span> token = <span class="fn">sign</span>(
+  { sub: <span class="str">'user_42'</span>, role: <span class="str">'admin'</span>, org: <span class="str">'acme'</span> },
+  secretKey,
+  {
+    algorithm:  <span class="str">'ML-DSA-65'</span>,   <span class="cmt">// NIST FIPS 204</span>
+    expiresIn:  <span class="str">'1h'</span>,
+    notBefore:  <span class="str">'0s'</span>,          <span class="cmt">// v1.1.0</span>
+    issuer:     <span class="str">'auth.myapp.com'</span>,
+    audience:   <span class="str">'api.myapp.com'</span>,
+  }
+);
+
+<span class="cmt">// Verify — throws TypedError on failure</span>
+<span class="kw">const</span> { payload } = <span class="fn">verify</span>(token, publicKey, {
+  issuer:          <span class="str">'auth.myapp.com'</span>,
+  audience:        <span class="str">'api.myapp.com'</span>,
+  clockTolerance:  <span class="num">10</span>,   <span class="cmt">// distributed system clock skew</span>
+});
+
+console.<span class="fn">log</span>(payload.sub);   <span class="cmt">// 'user_42'</span>
+console.<span class="fn">log</span>(payload.role);  <span class="cmt">// 'admin'</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+      </div>
+      <div class="code-filename">middleware.ts</div>
+      <div></div>
+    </div>
+    <pre><span class="kw">import</span> {
+  <span class="obj">verify</span>, <span class="obj">importKey</span>,
+  <span class="obj">TokenExpiredError</span>, <span class="obj">SignatureError</span>, <span class="obj">InvalidTokenError</span>,
+} <span class="kw">from</span> <span class="str">'@pq-jwt/core'</span>;
+
+<span class="kw">const</span> PK = <span class="fn">importKey</span>(process.env.<span class="obj">PQ_PUBLIC_KEY</span>!);
+
+<span class="kw">export function</span> <span class="fn">pqAuth</span>(req, res, next) {
+  <span class="kw">const</span> token = req.headers.authorization?.<span class="fn">slice</span>(<span class="num">7</span>);
+  <span class="kw">if</span> (!token) <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Missing token'</span> });
+
+  <span class="kw">try</span> {
+    <span class="kw">const</span> { payload } = <span class="fn">verify</span>(token, PK, {
+      issuer: <span class="str">'auth.myapp.com'</span>,
+      clockTolerance: <span class="num">10</span>,
+    });
+    req.user = payload;
+    <span class="fn">next</span>();
+  } <span class="kw">catch</span> (e) {
+    <span class="kw">if</span> (e <span class="kw">instanceof</span> <span class="obj">TokenExpiredError</span>) <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Expired'</span> });
+    <span class="kw">if</span> (e <span class="kw">instanceof</span> <span class="obj">SignatureError</span>)    <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">403</span>).<span class="fn">json</span>({ error: <span class="str">'Invalid'</span> });
+    res.<span class="fn">status</span>(<span class="num">400</span>).<span class="fn">json</span>({ error: e.message });
+  }
+}</pre>
+  </div>
+</section>
+
+<!-- ALGORITHMS -->
+<section id="algorithms" style="border-top:1px solid var(--border)">
+  <div class="section-tag">// nist standardized · august 2024</div>
+  <h2 class="section-title">Four algorithms.<br>All NIST approved.</h2>
+  <p class="section-sub">
+    After a 7-year open competition, NIST selected and standardized these algorithms
+    in August 2024. The NSA mandates them for all national security systems by 2030.
+  </p>
+
+  <div class="algo-grid">
+    <div class="algo-card">
+      <div class="algo-name">ML-DSA-44</div>
+      <div class="algo-standard">NIST FIPS 204 · Lattice-based (Module-LWE)</div>
+      <div style="font-size:0.82rem;color:var(--muted2)">Security level 2. Best for IoT and constrained environments where key size matters most.</div>
+      <div class="algo-stats">
+        <div class="algo-stat-item"><div class="algo-stat-val">128-bit Q</div><div class="algo-stat-key">Quantum security</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">2.5ms</div><div class="algo-stat-key">Key generation</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">1,312 B</div><div class="algo-stat-key">Public key</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">8.1ms</div><div class="algo-stat-key">Sign time</div></div>
+      </div>
+    </div>
+
+    <div class="algo-card featured">
+      <div class="algo-name">ML-DSA-65 <span class="algo-badge">RECOMMENDED</span></div>
+      <div class="algo-standard">NIST FIPS 204 · Lattice-based (Module-LWE)</div>
+      <div style="font-size:0.82rem;color:var(--muted2)">Security level 3. Best balance of performance and security. Default algorithm in @pq-jwt/core.</div>
+      <div class="algo-stats">
+        <div class="algo-stat-item"><div class="algo-stat-val">192-bit Q</div><div class="algo-stat-key">Quantum security</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">3.9ms</div><div class="algo-stat-key">Key generation</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">1,952 B</div><div class="algo-stat-key">Public key</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">10.7ms</div><div class="algo-stat-key">Sign time</div></div>
+      </div>
+    </div>
+
+    <div class="algo-card">
+      <div class="algo-name">ML-DSA-87</div>
+      <div class="algo-standard">NIST FIPS 204 · Lattice-based (Module-LWE)</div>
+      <div style="font-size:0.82rem;color:var(--muted2)">Security level 5. For government, banking, and high-security systems. Meets NSA CNSA 2.0.</div>
+      <div class="algo-stats">
+        <div class="algo-stat-item"><div class="algo-stat-val">256-bit Q</div><div class="algo-stat-key">Quantum security</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">4.8ms</div><div class="algo-stat-key">Key generation</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">2,592 B</div><div class="algo-stat-key">Public key</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">11.1ms</div><div class="algo-stat-key">Sign time</div></div>
+      </div>
+    </div>
+
+    <div class="algo-card">
+      <div class="algo-name">SLH-DSA-SHA2-128s</div>
+      <div class="algo-standard">NIST FIPS 205 · Hash-based (SPHINCS+)</div>
+      <div style="font-size:0.82rem;color:var(--muted2)">Conservative choice. No lattice assumptions — relies only on hash security. For long-term archival tokens.</div>
+      <div class="algo-stats">
+        <div class="algo-stat-item"><div class="algo-stat-val">128-bit Q</div><div class="algo-stat-key">Quantum security</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">623ms</div><div class="algo-stat-key">Key generation</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">32 B</div><div class="algo-stat-key">Public key</div></div>
+        <div class="algo-stat-item"><div class="algo-stat-val">5,373ms</div><div class="algo-stat-key">Sign time</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PERFORMANCE -->
+<section id="performance" style="border-top:1px solid var(--border)">
+  <div class="section-tag">// real benchmarks · node.js v22 · single thread</div>
+  <h2 class="section-title">Honest performance numbers.</h2>
+  <p class="section-sub">
+    Post-quantum tokens are larger. Signing is slower. These are real trade-offs —
+    documented clearly so you can make the right architectural decisions.
+  </p>
+
+  <table class="perf-table">
+    <thead>
+      <tr>
+        <th>Algorithm</th>
+        <th>Sign</th>
+        <th>Verify</th>
+        <th>Token Size</th>
+        <th>Quantum Safe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="broken-row">
+        <td>ECDSA-P256 (ES256)</td>
+        <td class="good">&lt; 1ms</td>
+        <td class="good">&lt; 1ms</td>
+        <td class="good">~0.5 KB</td>
+        <td class="bad">✗ Broken</td>
+      </tr>
+      <tr class="broken-row">
+        <td>RSA-2048 (RS256)</td>
+        <td class="good">&lt; 2ms</td>
+        <td class="good">&lt; 1ms</td>
+        <td class="good">~0.5 KB</td>
+        <td class="bad">✗ Broken</td>
+      </tr>
+      <tr>
+        <td>ML-DSA-44</td>
+        <td class="warn">8.1ms</td>
+        <td class="good">2.1ms</td>
+        <td class="warn">~3.5 KB</td>
+        <td class="good">✓ FIPS 204</td>
+      </tr>
+      <tr class="highlight">
+        <td>ML-DSA-65 <span class="rec-badge">default</span></td>
+        <td class="warn">10.7ms</td>
+        <td class="good">2.9ms</td>
+        <td class="warn">~4.5 KB</td>
+        <td class="good">✓ FIPS 204</td>
+      </tr>
+      <tr>
+        <td>ML-DSA-87</td>
+        <td class="warn">11.1ms</td>
+        <td class="warn">4.8ms</td>
+        <td class="warn">~6.2 KB</td>
+        <td class="good">✓ FIPS 204</td>
+      </tr>
+      <tr>
+        <td>SLH-DSA-SHA2-128s</td>
+        <td class="bad">5,373ms</td>
+        <td class="good">5.8ms</td>
+        <td class="bad">~10.8 KB</td>
+        <td class="good">✓ FIPS 205</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- WHO NEEDS THIS -->
+<section style="border-top:1px solid var(--border)">
+  <div class="section-tag">// use cases</div>
+  <h2 class="section-title">Who needs this now?</h2>
+
+  <div class="use-grid">
+    <div class="use-card">
+      <div class="use-icon">🏦</div>
+      <div class="use-title">Financial systems</div>
+      <div class="use-desc">Banking APIs, payment processors, and fintech under regulatory pressure to begin PQ migration planning. Use ML-DSA-87 for NSA CNSA 2.0 compliance.</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🔗</div>
+      <div class="use-title">Web3 / Blockchain</div>
+      <div class="use-desc">Wallet authentication, validator signatures, and DApp auth that must survive the quantum transition. secp256k1 is vulnerable — ML-DSA is not.</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🏛️</div>
+      <div class="use-title">Government &amp; Defence</div>
+      <div class="use-desc">NSA CNSA 2.0 mandates ML-DSA for all national security systems by 2030. Start evaluating infrastructure now, not in 2029.</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🔬</div>
+      <div class="use-title">Research &amp; Healthcare</div>
+      <div class="use-desc">Long-lived data access tokens for medical records and research data. Harvest-now attacks target data meant to remain confidential for decades.</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">☁️</div>
+      <div class="use-title">Cloud &amp; SaaS</div>
+      <div class="use-desc">Any multi-service architecture using JWTs for service-to-service auth. Begin with internal APIs before migrating customer-facing auth.</div>
+    </div>
+    <div class="use-card">
+      <div class="use-icon">🛡️</div>
+      <div class="use-title">Security-conscious devs</div>
+      <div class="use-desc">Forward-thinking engineers who understand that the right time to adopt post-quantum tooling is before compliance deadlines, not during them.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section style="border-top:1px solid var(--border)">
+  <div class="section-tag">// why 2025 is the right time</div>
+  <h2 class="section-title">The migration window<br>is open now.</h2>
+  <p class="section-sub">
+    The threat is not immediate. The migration pressure is. 
+    Start evaluating tooling now so you're not rushing in 2027.
+  </p>
+
+  <div class="timeline">
+    <div class="tl-item active">
+      <div class="tl-year">2024</div>
+      <div class="tl-event">NIST publishes FIPS 203, 204, 205</div>
+      <div class="tl-desc">Official post-quantum standards. ML-DSA, SLH-DSA, ML-KEM are federal law.</div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-year">2025 — now</div>
+      <div class="tl-event">Early adopters build tooling</div>
+      <div class="tl-desc">@pq-jwt/core ships. First developer-friendly PQ JWT library for Node.js.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2026</div>
+      <div class="tl-event">Enterprise evaluation begins</div>
+      <div class="tl-desc">Security teams begin auditing auth infrastructure for PQ readiness.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2027</div>
+      <div class="tl-event">Financial sector mandates start</div>
+      <div class="tl-desc">Banking regulators in EU and US issue PQ migration guidance with timelines.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2030</div>
+      <div class="tl-event">NSA CNSA 2.0 deadline</div>
+      <div class="tl-desc">All US national security systems must use ML-DSA. Non-compliance is a liability.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2035+</div>
+      <div class="tl-event">CRQCs become viable</div>
+      <div class="tl-desc">Cryptographically relevant quantum computers. Data harvested today is at risk.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="section-tag" style="text-align:center">// get started today</div>
+  <h2 class="section-title" style="text-align:center;max-width:600px;margin:0 auto 1rem">
+    Your authentication,<br>quantum-proof.
+  </h2>
+  <p style="color:var(--muted2);max-width:480px;margin:0 auto 2.5rem;text-align:center">
+    MIT license. Full TypeScript. Express ready. Built on audited cryptography.
+    Maintained by <strong style="color:var(--text)">Sachin Ruhil</strong>.
+  </p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank" class="btn-primary">
+      npm install @pq-jwt/core
+    </a>
+    <a href="https://github.com/pq-jwt/PQ-JWT" target="_blank" class="btn-ghost">
+      View source on GitHub →
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-brand">
+    <strong>@pq-jwt/core</strong> · Built by Sachin Ruhil · MIT License
+  </div>
+  <div class="footer-links">
+    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank">npm</a>
+    <a href="https://github.com/pq-jwt/PQ-JWT" target="_blank">GitHub</a>
+    <a href="https://github.com/pq-jwt/PQ-JWT-Demo" target="_blank">Demo</a>
+    <a href="https://github.com/pq-jwt/PQ-JWT/blob/main/pq-jwt-whitepaper-sachin-ruhil.docx" target="_blank">Whitepaper</a>
+  </div>
+</footer>
+
+<script>
+function copyInstall(el) {
+  navigator.clipboard.writeText('npm install @pq-jwt/core').then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'copied!';
+    btn.style.color = 'var(--teal)';
+    btn.style.borderColor = 'var(--teal)';
+    setTimeout(() => {
+      btn.textContent = 'copy';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
+}
+
+// Animate stats on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.style.opacity = '1';
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.algo-card, .use-card, .tl-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transition = 'opacity 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
