@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://pq-jwt.github.io/sitemap.xml
