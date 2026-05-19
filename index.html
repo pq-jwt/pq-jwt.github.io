@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>pq-jwt — Post-Quantum JWT for JS, TypeScript &amp; Node.js</title>
-<meta name="description" content="Drop-in successor to RS256/ES256 for JavaScript, TypeScript, and Node.js. NIST FIPS 204 (ML-DSA) and FIPS 205 (SLH-DSA). Same API as jsonwebtoken.">
+<meta name="description" content="Post-quantum auth ecosystem for JavaScript, TypeScript, and Node.js — @pq-jwt/core, @pq-jwt/express, @pq-jwt/hybrid, and @pq-jose/jose. NIST FIPS 203/204/205 via @noble/post-quantum.">
 
 <!-- Open Graph — controls how link previews look on every platform -->
 <meta property="og:title"       content="pq-jwt — Post-Quantum JWT for JS, TypeScript &amp; Node.js">
-<meta property="og:description" content="Drop-in successor to RS256/ES256. JavaScript, TypeScript, and Node.js. NIST FIPS 204 (ML-DSA) + FIPS 205 (SLH-DSA). Same API as jsonwebtoken.">
+<meta property="og:description" content="Post-quantum auth ecosystem: @pq-jwt/core, @pq-jwt/express, @pq-jwt/hybrid, @pq-jose/jose. JavaScript, TypeScript, and Node.js. NIST FIPS 203/204/205.">
 <meta property="og:url"         content="https://pq-jwt.github.io">
 <meta property="og:type"        content="website">
 <meta property="og:image"       content="https://pq-jwt.github.io/og-image.png">
@@ -542,6 +542,51 @@
   .use-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
   .use-desc { font-size: 0.85rem; color: var(--muted2); line-height: 1.6; }
 
+  /* ── Ecosystem ── */
+  .eco-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+  .eco-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .eco-card:hover { border-color: rgba(0,212,170,0.35); transform: translateY(-2px); }
+  .eco-card.featured { border-color: rgba(0,212,170,0.4); }
+  .eco-role {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .eco-name {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .eco-name a { color: var(--teal); text-decoration: none; }
+  .eco-name a:hover { color: var(--teal2); }
+  .eco-desc { font-size: 0.85rem; color: var(--muted2); line-height: 1.6; flex: 1; }
+  .eco-install {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .eco-install code { color: var(--teal2); }
+
   /* ── Timeline ── */
   .timeline {
     position: relative;
@@ -637,6 +682,7 @@
     .threat-grid, .algo-grid { grid-template-columns: 1fr; }
     .use-grid { grid-template-columns: 1fr; }
     .stat { padding: 1rem 1.5rem; }
+    .eco-grid { grid-template-columns: 1fr; }
     nav .nav-links { display: none; }
     footer { flex-direction: column; gap: 1rem; text-align: center; }
   }
@@ -649,6 +695,7 @@
   <div class="nav-logo">pq-jwt<span>/core</span></div>
   <div class="nav-links">
     <a href="#why">Why</a>
+    <a href="#ecosystem">Ecosystem</a>
     <a href="#algorithms">Algorithms</a>
     <a href="#code">Usage</a>
     <a href="#performance">Performance</a>
@@ -672,7 +719,7 @@
   <p class="hero-sub">
     RS256 and ES256 are broken by Shor's algorithm on a quantum computer.
     <strong style="color:var(--text)">@pq-jwt/core</strong> replaces them with
-    NIST-standardized ML-DSA and SLH-DSA. Same API. Drop-in replacement.
+    NIST-standardized ML-DSA and SLH-DSA — plus Express middleware, hybrid migration, and full JOSE.
   </p>
 
   <div class="hero-install" onclick="copyInstall(this)">
@@ -695,7 +742,7 @@
 <div class="stats-bar">
   <div class="stat">
     <span class="stat-num">4</span>
-    <span class="stat-label">NIST Algorithms</span>
+    <span class="stat-label">npm packages</span>
   </div>
   <div class="stat">
     <span class="stat-num">v1.0.6</span>
@@ -865,6 +912,46 @@ console.<span class="fn">log</span>(payload.role);  <span class="cmt">// 'admin'
     res.<span class="fn">status</span>(<span class="num">400</span>).<span class="fn">json</span>({ error: e.message });
   }
 }</pre>
+  </div>
+</section>
+
+<!-- ECOSYSTEM -->
+<section id="ecosystem" style="border-top:1px solid var(--border)">
+  <div class="section-tag">// npm ecosystem</div>
+  <h2 class="section-title">Core, backend, migration,<br>and full JOSE.</h2>
+  <p class="section-sub">
+    Four packages under the PQ-JWT ecosystem — from low-level JWT signing to Express APIs,
+    hybrid classical→PQ migration for frontends, and a complete post-quantum JOSE stack.
+  </p>
+
+  <div class="eco-grid">
+    <div class="eco-card featured">
+      <div class="eco-role">Core · JWT</div>
+      <div class="eco-name"><a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank">@pq-jwt/core</a></div>
+      <div class="eco-desc">Post-quantum JWT sign, verify, and decode. Drop-in successor to RS256/ES256. ML-DSA and SLH-DSA. Same API as jsonwebtoken. Full TypeScript.</div>
+      <div class="eco-install"><code>npm install @pq-jwt/core</code></div>
+    </div>
+
+    <div class="eco-card">
+      <div class="eco-role">Backend · Express</div>
+      <div class="eco-name"><a href="https://www.npmjs.com/package/@pq-jwt/express" target="_blank">@pq-jwt/express</a></div>
+      <div class="eco-desc">Express.js middleware for @pq-jwt/core. Drop-in <code style="color:var(--teal)">pqAuth()</code> with typed errors, role guards, and custom token extractors — wire PQ auth into Node APIs in minutes.</div>
+      <div class="eco-install"><code>npm install @pq-jwt/express</code></div>
+    </div>
+
+    <div class="eco-card">
+      <div class="eco-role">Migration · Hybrid · Frontend</div>
+      <div class="eco-name"><a href="https://www.npmjs.com/package/@pq-jwt/hybrid" target="_blank">@pq-jwt/hybrid</a></div>
+      <div class="eco-desc">Hybrid JWT — ECDSA P-256 + ML-DSA dual signing. Migration bridge from classical to post-quantum. Use in SPAs and client apps that must verify both legacy ECDSA and PQ tokens during rollout.</div>
+      <div class="eco-install"><code>npm install @pq-jwt/hybrid</code></div>
+    </div>
+
+    <div class="eco-card">
+      <div class="eco-role">JOSE · JWT · JWE · JWK</div>
+      <div class="eco-name"><a href="https://www.npmjs.com/package/@pq-jose/jose" target="_blank">@pq-jose/jose</a></div>
+      <div class="eco-desc">A complete post-quantum JOSE library for JavaScript/Node.js — JWT, JWS, JWE, JWK, and JWKS. Built on @pq-jwt/core; jose-compatible API. NIST FIPS 203 (ML-KEM), 204 (ML-DSA), and 205 (SLH-DSA) via audited @noble/post-quantum.</div>
+      <div class="eco-install"><code>npm install @pq-jose/jose</code></div>
+    </div>
   </div>
 </section>
 
@@ -1051,7 +1138,7 @@ console.<span class="fn">log</span>(payload.role);  <span class="cmt">// 'admin'
     <div class="tl-item active">
       <div class="tl-year">2025 — now</div>
       <div class="tl-event">Early adopters build tooling</div>
-      <div class="tl-desc">@pq-jwt/core ships. First developer-friendly PQ JWT library for JavaScript, TypeScript, and Node.js.</div>
+      <div class="tl-desc">@pq-jwt/core, @pq-jwt/express, @pq-jwt/hybrid, and @pq-jose/jose ship — full PQ auth stack for JavaScript, TypeScript, and Node.js.</div>
     </div>
     <div class="tl-item">
       <div class="tl-year">2026</div>
@@ -1098,10 +1185,13 @@ console.<span class="fn">log</span>(payload.role);  <span class="cmt">// 'admin'
 
 <footer>
   <div class="footer-brand">
-    <strong>@pq-jwt/core</strong> · Built by Sachin Ruhil · MIT License
+    <strong>PQ-JWT ecosystem</strong> · Built by Sachin Ruhil · MIT License
   </div>
   <div class="footer-links">
-    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank">npm</a>
+    <a href="https://www.npmjs.com/package/@pq-jwt/core" target="_blank">core</a>
+    <a href="https://www.npmjs.com/package/@pq-jwt/express" target="_blank">express</a>
+    <a href="https://www.npmjs.com/package/@pq-jwt/hybrid" target="_blank">hybrid</a>
+    <a href="https://www.npmjs.com/package/@pq-jose/jose" target="_blank">jose</a>
     <a href="https://github.com/pq-jwt/PQ-JWT" target="_blank">GitHub</a>
     <a href="https://github.com/pq-jwt/PQ-JWT-Demo" target="_blank">Demo</a>
     <a href="https://github.com/pq-jwt/PQ-JWT/blob/main/pq-jwt-whitepaper-sachin-ruhil.docx" target="_blank">Whitepaper</a>
@@ -1129,7 +1219,7 @@ const observer = new IntersectionObserver((entries) => {
     if (e.isIntersecting) e.target.style.opacity = '1';
   });
 }, { threshold: 0.1 });
-document.querySelectorAll('.algo-card, .use-card, .tl-item').forEach(el => {
+document.querySelectorAll('.algo-card, .use-card, .eco-card, .tl-item').forEach(el => {
   el.style.opacity = '0';
   el.style.transition = 'opacity 0.5s ease';
   observer.observe(el);
